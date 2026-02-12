@@ -1,5 +1,7 @@
 import express from "express";
 import { _exported_messageStore } from "../controllers/messageController.js";
+import { validate } from "../middleware/zodValidate.js";
+import { userIdSchema } from "../validations/userRoutesValidation.js";
 
 const router = express.Router();
 
@@ -52,7 +54,7 @@ router.get("/presence/online", async (req, res) => {
 });
 
 // Check if specific user is online
-router.get("/presence/user/:userId", async (req, res) => {
+router.get("/presence/user/:userId",validate(userIdSchema,"params") ,async (req, res) => {
   try {
     const { userId } = req.params;
     const ts = _exported_messageStore.presence[userId];
@@ -76,7 +78,7 @@ router.get("/presence/user/:userId", async (req, res) => {
 });
 
 // Invalidate user's cache (no Redis, just placeholder)
-router.delete("/cache/user/:userId", async (req, res) => {
+router.delete("/cache/user/:userId",validate(userIdSchema), async (req, res) => {
   try {
     const { userId } = req.params;
     // With Redis removed, just return success

@@ -727,7 +727,7 @@ app.delete("/api/notifications/:id", requireAuth, async (req, res) => {
     
     res.json({ message: "Notification deleted" });
   } catch (error) {
-    console.error("Delete notification error:", error);
+    console.error(" notification error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });

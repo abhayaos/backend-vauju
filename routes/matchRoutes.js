@@ -2,6 +2,9 @@
 import express from "express";
 import User from "../models/User.js";
 import { auth } from "../middleware/auth.js";
+import { validate } from "../middleware/zodValidate.js";
+import { userIdSchema } from "../validations/userRoutesValidation.js";
+import { matchNotificationSchema } from "../validations/matchRoutesValidation.js";
 
 const router = express.Router();
 
@@ -25,7 +28,7 @@ router.get("/", auth, async (req, res) => {
 });
 
 // GET /api/matches/:id - Get profile details
-router.get("/:id", auth, async (req, res) => {
+router.get("/:id",validate(userIdSchema,"params") ,auth, async (req, res) => {
   try {
     const profile = await User.findOne({
       _id: req.params.id,
@@ -47,7 +50,7 @@ router.get("/:id", auth, async (req, res) => {
 });
 
 // POST /api/matches/notify - Send match notification
-router.post("/notify", auth, async (req, res) => {
+router.post("/notify",validate(matchNotificationSchema) ,auth, async (req, res) => {
   try {
     const { recipientId, message } = req.body;
     if (!recipientId) {

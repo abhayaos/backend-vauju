@@ -1,11 +1,13 @@
 import express from "express";
 import User from "../models/User.js";
 import { auth } from "../middleware/auth.js";
+import { validate } from "../middleware/zodValidate.js";
+import { userIdSchema, usernameSchema } from "../validations/userRoutesValidation.js";
 
 const router = express.Router();
 
 // GET /api/users/:username
-router.get("/@:username", async (req, res) => {
+router.get("/:username", validate(usernameSchema,"params") ,async (req, res) => {
   try {
     let { username } = req.params;
 
@@ -46,7 +48,7 @@ router.get("/me", auth, async (req, res) => {
 });
 
 // GET /api/users/:id - Get user by ID
-router.get("/:id", auth, async (req, res) => {
+router.get("/:id",validate(userIdSchema,"params"), auth, async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findById(id).select("-password");

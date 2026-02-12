@@ -4,6 +4,9 @@ import { trackPostView } from '../middleware/viewTracker.js';
 import Post from '../models/Post.js';
 import Comment from '../models/Comment.js';
 import User from '../models/User.js';
+import { validate } from '../middleware/zodValidate.js';
+import { userIdSchema } from '../validations/userRoutesValidation.js';
+import { createPost } from '../validations/postRoutesValidation.js';
 
 const router = express.Router();
 
@@ -44,7 +47,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get a single post by ID
-router.get('/:id', trackPostView, async (req, res) => {
+router.get('/:id', validate(userIdSchema,"params") ,trackPostView, async (req, res) => {
   try {
     console.log(`Fetching post with ID: ${req.params.id}`);
     
@@ -71,7 +74,7 @@ router.get('/:id', trackPostView, async (req, res) => {
 });
 
 // Create a new post
-router.post('/', requireAuth, async (req, res) => {
+router.post('/', validate(createPost,"body"),requireAuth, async (req, res) => {
   try {
     const { title, content, image } = req.body;
     
@@ -212,7 +215,7 @@ router.post('/:id/share', requireAuth, async (req, res) => {
 });
 
 // Delete a post (only by the owner)
-router.delete('/:id', requireAuth, async (req, res) => {
+router.delete('/:id',validate(userIdSchema,"params") , requireAuth, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     

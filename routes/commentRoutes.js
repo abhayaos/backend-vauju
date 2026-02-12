@@ -2,11 +2,14 @@ import express from 'express';
 import { auth as requireAuth } from '../middleware/auth.js';
 import Comment from '../models/Comment.js';
 import Post from '../models/Post.js';
+import { validate } from '../middleware/zodValidate.js';
+import { postIdSchema } from '../validations/postRoutesValidation.js';
+import { commentContentSchema, commentIdSchema, commentReplySchema } from '../validations/commentRoutesValidation.js';
 
 const router = express.Router();
 
 // Get all comments for a post
-router.get('/post/:postId', async (req, res) => {
+router.get('/post/:postId',validate(postIdSchema,"params"), async (req, res) => {
   try {
     const { postId } = req.params;
     
@@ -27,7 +30,7 @@ router.get('/post/:postId', async (req, res) => {
 });
 
 // Get a single comment by ID
-router.get('/:commentId', async (req, res) => {
+router.get('/:commentId',validate(commentIdSchema,"params"), async (req, res) => {
   try {
     const { commentId } = req.params;
     
@@ -51,7 +54,7 @@ router.get('/:commentId', async (req, res) => {
 });
 
 // Create a new comment on a post
-router.post('/post/:postId', requireAuth, async (req, res) => {
+router.post('/post/:postId', validate(postIdSchema,"params"),validate(commentContentSchema,"body"),requireAuth, async (req, res) => {
   try {
     const { postId } = req.params;
     const { content } = req.body;
@@ -95,7 +98,7 @@ router.post('/post/:postId', requireAuth, async (req, res) => {
 });
 
 // Update a comment (only by the owner)
-router.put('/:commentId', requireAuth, async (req, res) => {
+router.put('/:commentId',validate(postIdSchema,"params"),validate(commentContentSchema,"body") ,requireAuth, async (req, res) => {
   try {
     const { commentId } = req.params;
     const { content } = req.body;
@@ -135,7 +138,7 @@ router.put('/:commentId', requireAuth, async (req, res) => {
 });
 
 // Delete a comment (only by the owner)
-router.delete('/:commentId', requireAuth, async (req, res) => {
+router.delete('/:commentId',validate(commentIdSchema,"params"), requireAuth, async (req, res) => {
   try {
     const { commentId } = req.params;
 
@@ -206,7 +209,7 @@ router.post('/:commentId/like', requireAuth, async (req, res) => {
 });
 
 // Reply to a comment
-router.post('/:commentId/reply', requireAuth, async (req, res) => {
+router.post('/:commentId/reply',validate(commentContentSchema,"body") , requireAuth, async (req, res) => {
   try {
     const { commentId } = req.params;
     const { content } = req.body;
@@ -246,7 +249,7 @@ router.post('/:commentId/reply', requireAuth, async (req, res) => {
 });
 
 // Delete a reply (only by the owner)
-router.delete('/:commentId/reply/:replyId', requireAuth, async (req, res) => {
+router.delete('/:commentId/reply/:replyId',validate(commentReplySchema), requireAuth, async (req, res) => {
   try {
     const { commentId, replyId } = req.params;
 
